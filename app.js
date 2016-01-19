@@ -14,5 +14,8 @@ console.log('Loading model from: ' + nconf.get('paths:model'));
 
 var modelData = require(nconf.get('paths:model'));
 var modelDefinition = new ModelDefinition(modelData);
-var model = new SequelizeModel(modelDefinition, nconf.get('database:uri'), nconf.get('database:options'));
 
+var model = new SequelizeModel();
+model.define(modelDefinition, nconf.get('database:uri'), nconf.get('database:options')).then(function() {
+    console.log('Model setup completed');
+});
