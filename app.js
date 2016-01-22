@@ -23,16 +23,30 @@ model.define(modelDefinition, promise, nconf.get('database:uri'), nconf.get('dat
 
     var Backer = backer(model, promise);
     
-    Backer.Artist.create({
-        title: 'The Killers',
+    var album = Backer.Album.create({
+        title: 'Sawdust',
         published: true
-    }).save().then(function(artist) {
-        return Backer.Artist.get('1');
-    }).then(function(artist) {
-        console.log(artist);
-        return Backer.Artist.query().where({ title: 'The Killers' }).find();
-    }).then(function(artists) {
-        console.log(artists);
+    });
+    
+    var genre = Backer.Genre.create({
+        title: 'Dance Rock'
+    });
+    
+    genre.save().then(function() {
+        album.set('genre', genre);
+        console.log(album.get('genre').get('title'));
+        
+        return album.save();
+    }).then(function() {
+        return Backer.Album.query()
+            .where({ id: '1' })
+            .include(['genre'])
+            .find();
+    }).then(function(albums) {
+        console.log(albums[0].get('genre').get('title'));
+        return Backer.Promise.resolve();
+    }).then(function() {
+        console.log('ok');
     }, function(error) {
         console.log(error);
     });
