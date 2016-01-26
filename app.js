@@ -1,4 +1,3 @@
-var restify = require('restify');
 var nconf = require('nconf');
 var promise = require('promise');
 
@@ -6,7 +5,9 @@ require('promise/lib/rejection-tracking').enable();
 
 var ModelDefinition = require('./lib/model/definition/ModelDefinition.js')
 var SequelizeModel = require('./lib/model/sequelize/SequelizeModel.js')
-var backer = require('./lib/model/Backer.js');
+var initBacker = require('./lib/model/Backer.js');
+var initREST = require('./lib/rest/REST.js');
+var Worker = require('./lib/api/Worker.js');
 
 nconf.argv().env('_');
 
@@ -23,51 +24,14 @@ var model = new SequelizeModel();
 model.define(modelDefinition, promise, nconf.get('database:uri'), nconf.get('database:options')).then(function() {
     console.log('Model setup completed');
 
-    var Backer = backer(model, promise);
+    var Backer = initBacker(model, promise);
+    var worker = new Worker(Backer);
     
-    var album = Backer.Album.create({
-        title: 'Sawdust',
-        published: true
-    });
-    
-    album.save().then(function() {
-        return Backer.Promise.all([
-            Backer.Track.create({ title: 'Tranquilize (Feat. Lou Reed)' }).save(),
-            Backer.Track.create({ title: 'Shadowplay' }).save(),
-            Backer.Track.create({ title: 'All the Pretty Faces' }).save()
-        ]);
-    }).then(function(tracks) {
-        return album.relation('tracks').add(tracks);
-    }).then(function() {
-        return Backer.Album.get('1');
-    }).then(function(albumAgain) {
-        return albumAgain.relation('tracks').fetch(2);
-    }).then(function(tracksAgain) {
-        return album.relation('tracks').remove(tracksAgain);
-    }).then(function(tracks) {
-        console.log('ok');
-    });
-    
-    // var genre = Backer.Genre.create({
-    //     title: 'Dance Rock'
-    // });
-    //
-    // genre.save().then(function() {
-    //     album.set('genre', genre);
-    //     console.log(album.get('genre').get('title'));
-    //
-    //     return album.save();
-    // }).then(function() {
-    //     return Backer.Album.query()
-    //         .where({ id: '1' })
-    //         .include(['genre'])
-    //         .find();
-    // }).then(function(albums) {
-    //     console.log(albums[0].get('genre').get('title'));
-    //     return Backer.Promise.resolve();
-    // }).then(function() {
-    //     console.log('ok');
-    // }, function(error) {
-    //     console.log(error);
-    // });
+    return initREST(nconf.get('rest:port'), nconf.get('application:name'), model.getDefinition(), worker);
+}).then(function() {
+    console.log('REST API setup completed');
+    console.log('Container application initialized successfully');
+}, function(error) {
+    console.error('Start up failed: ', error.stack);
+    process.exit(1);
 });
