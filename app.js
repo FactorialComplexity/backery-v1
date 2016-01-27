@@ -27,9 +27,12 @@ model.define(modelDefinition, promise, nconf.get('database:uri'), nconf.get('dat
     var Backer = initBacker(model, promise);
     var worker = new Worker(Backer);
     
-    return initREST(nconf.get('rest:port'), nconf.get('application:name'), model.getDefinition(), worker);
-}).then(function() {
-    console.log('REST API setup completed');
+    return initREST({
+        port: nconf.get('rest:port'),
+        maxBodySize: nconf.get('rest:maxBodySize')
+    }, nconf.get('application:name'), model.getDefinition(), worker);
+}).then(function(info) {
+    console.log('REST API setup completed, listening to port %s', info.address.port);
     console.log('Container application initialized successfully');
 }, function(error) {
     console.error('Start up failed: ', error.stack);
