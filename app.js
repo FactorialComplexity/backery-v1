@@ -1,6 +1,14 @@
 var nconf = require('nconf');
 var promise = require('promise');
 
+require('console-stamp')(console, {
+    pattern: "UTC:yyyy-mm-dd'T'HH:MM:ss.l'Z'",
+    label: false,
+    colors: {
+    	stamp: "yellow"
+    }
+});
+
 require('promise/lib/rejection-tracking').enable();
 
 var ModelDefinition = require('./lib/model/definition/ModelDefinition.js')
