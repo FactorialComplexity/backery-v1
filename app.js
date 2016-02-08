@@ -15,7 +15,7 @@ var ModelDefinition = require('./lib/model/definition/ModelDefinition.js')
 var SequelizeModel = require('./lib/model/sequelize/SequelizeModel.js')
 var initBacker = require('./lib/model/Backer.js');
 var initREST = require('./lib/rest/REST.js');
-var Worker = require('./lib/api/Worker.js');
+var Application = require('./lib/api/Application.js');
 
 nconf.argv().env('_');
 
@@ -33,12 +33,12 @@ model.define(modelDefinition, promise, nconf.get('database:uri'), nconf.get('dat
     console.log('Model setup completed');
 
     var Backer = initBacker(model, promise);
-    var worker = new Worker(Backer);
+    var application = new Application(nconf, model, Backer);
     
-    return initREST({
+    return initREST(application, {
         port: nconf.get('rest:port'),
         maxBodySize: nconf.get('rest:maxBodySize')
-    }, nconf.get('application:name'), model.getDefinition(), worker);
+    });
 }).then(function(info) {
     console.log('REST API setup completed, listening to port %s', info.address.port);
     console.log('Container application initialized successfully');
