@@ -9,7 +9,6 @@ require('console-stamp')(console, {
     }
 });
 
-require('promise/lib/rejection-tracking').enable();
 
 var ModelDefinition = require('./lib/model/definition/ModelDefinition.js')
 var SequelizeModel = require('./lib/model/sequelize/SequelizeModel.js')
