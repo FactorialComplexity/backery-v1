@@ -1,5 +1,5 @@
 var nconf = require('nconf');
-var promise = require('promise');
+var _ = require('underscore');
 
 require('console-stamp')(console, {
     pattern: "UTC:yyyy-mm-dd'T'HH:MM:ss.l'Z'",
@@ -9,13 +9,12 @@ require('console-stamp')(console, {
     }
 });
 
-require('promise/lib/rejection-tracking').enable();
 
 var ModelDefinition = require('./lib/model/definition/ModelDefinition.js')
 var SequelizeModel = require('./lib/model/sequelize/SequelizeModel.js')
-var initBacker = require('./lib/model/Backer.js');
-var initREST = require('./lib/rest/REST.js');
+var Backery = require('./lib/model/Backery.js');
 var Application = require('./lib/api/Application.js');
+var initREST = require('./lib/rest/REST.js');
 
 nconf.argv().env('_');
 
@@ -29,11 +28,16 @@ var modelData = require(nconf.get('paths:model'));
 var modelDefinition = new ModelDefinition(modelData);
 
 var model = new SequelizeModel();
-model.define(modelDefinition, promise, nconf.get('database:uri'), nconf.get('database:options')).then(function() {
+model.define(modelDefinition, nconf.get('database:uri'), nconf.get('database:options'), Backery).then(function() {
     console.log('Model setup completed');
 
-    var Backer = initBacker(model, promise);
-    var application = new Application(nconf, model, Backer);
+    var entities = { };
+    _.each(modelDefinition.entities, function(entityDefinition) {
+        entities[entityDefinition.name] = model.entity(entityDefinition.name);
+    });
+    Backery.Model = entities;
+    
+    var application = new Application(nconf, model, Backery);
     
     return initREST(application, {
         port: nconf.get('rest:port'),
