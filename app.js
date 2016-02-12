@@ -1,4 +1,5 @@
 var nconf = require('nconf');
+var path = require('path');
 var _ = require('underscore');
 
 require('console-stamp')(console, {
@@ -19,12 +20,12 @@ var initREST = require('./lib/rest/REST.js');
 nconf.argv().env('_');
 
 if (nconf.get('paths:config')) {
-    nconf.file({ file: nconf.get('paths:config') });
+    nconf.file({ file: path.resolve(nconf.get('paths:config')) });
 }
 
-console.log('Loading model from: ' + nconf.get('paths:model'));
+console.log('Loading model from: ' + path.resolve(nconf.get('paths:model')));
 
-var modelData = require(nconf.get('paths:model'));
+var modelData = require(path.resolve(nconf.get('paths:model')));
 var modelDefinition = new ModelDefinition(modelData);
 
 var model = new SequelizeModel();
