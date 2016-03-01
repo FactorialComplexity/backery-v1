@@ -13,7 +13,7 @@ require('console-stamp')(console, {
 
 var ModelDefinition = require('./lib/model/definition/ModelDefinition.js')
 var SequelizeModel = require('./lib/model/sequelize/SequelizeModel.js')
-var Backery = require('./lib/model/Backery.js');
+var Backery = require('./lib/Backery.js');
 var Application = require('./lib/api/Application.js');
 var initREST = require('./lib/rest/REST.js');
 
