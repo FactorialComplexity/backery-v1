@@ -29,6 +29,8 @@ var modelData = require(path.resolve(nconf.get('paths:model')));
 var modelDefinition = new ModelDefinition(modelData);
 
 var model = new SequelizeModel();
+var application;
+
 model.define(modelDefinition, nconf.get('database:uri'), nconf.get('database:options'), Backery).then(function() {
     console.log('Model setup completed');
 
@@ -38,7 +40,7 @@ model.define(modelDefinition, nconf.get('database:uri'), nconf.get('database:opt
     });
     Backery.Model = entities;
     
-    var application = new Application(nconf, model, Backery);
+    application = new Application(nconf, model, Backery);
     
     return initREST(application, {
         port: nconf.get('rest:port'),
@@ -46,6 +48,15 @@ model.define(modelDefinition, nconf.get('database:uri'), nconf.get('database:opt
     });
 }).then(function(info) {
     console.log('REST API setup completed, listening to port %s', info.address.port);
+    
+    console.log('Extension code request hooks:');
+    _.each(application.getRequestHooks(), function(types, entityName) {
+        console.log('  ' + entityName);
+        _.each(types, function(type) {
+            console.log('    - ' + type);
+        });
+    });
+    
     console.log('Container application initialized successfully');
 }, function(error) {
     console.error('Start up failed: ', error.stack);
