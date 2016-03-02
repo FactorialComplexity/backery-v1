@@ -11,6 +11,7 @@ require('console-stamp')(console, {
 });
 
 
+var BackeryRole = require('./lib/model/BackeryRole.js')
 var ModelDefinition = require('./lib/model/definition/ModelDefinition.js')
 var SequelizeModel = require('./lib/model/sequelize/SequelizeModel.js')
 var Backery = require('./lib/Backery.js');
@@ -38,8 +39,15 @@ model.define(modelDefinition, nconf.get('database:uri'), nconf.get('database:opt
     _.each(modelDefinition.entities, function(entityDefinition) {
         entities[entityDefinition.name] = model.entity(entityDefinition.name);
     });
+
     Backery.Model = entities;
+
+    var roles = {};
+    _.each(modelDefinition.roles, function(roleDefinition) {
+        roles[roleDefinition.name] = new BackeryRole(roleDefinition);
+    });
     
+    Backery.Model.Roles = roles;
     application = new Application(nconf, model, Backery);
     
     return initREST(application, {
