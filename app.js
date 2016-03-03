@@ -23,6 +23,8 @@ if (nconf.get('paths:config')) {
     nconf.file({ file: path.resolve(nconf.get('paths:config')) });
 }
 
+nconf.env('_');
+
 console.log('Loading model from: ' + path.resolve(nconf.get('paths:model')));
 
 var modelData = require(path.resolve(nconf.get('paths:model')));
@@ -59,6 +61,7 @@ model.define(modelDefinition, nconf.get('database:uri'), nconf.get('database:opt
     
     console.log('Container application initialized successfully');
 }, function(error) {
+    console.error(error);
     console.error('Start up failed: ', error.stack);
     process.exit(1);
 });
