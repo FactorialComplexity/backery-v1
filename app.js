@@ -17,13 +17,13 @@ var Backery = require('./lib/Backery.js');
 var Application = require('./lib/api/Application.js');
 var initREST = require('./lib/rest/REST.js');
 
-nconf.argv().env('_');
+nconf.argv();
 
 if (nconf.get('paths:config')) {
     nconf.file({ file: path.resolve(nconf.get('paths:config')) });
 }
 
-nconf.env('_');
+nconf.env('__');
 
 console.log('Loading model from: ' + path.resolve(nconf.get('paths:model')));
 
