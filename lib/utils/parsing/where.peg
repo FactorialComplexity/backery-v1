@@ -13,7 +13,8 @@ Expression =
     LessThanOrEquals /
     ContainedIn /
     NotContainedIn /
-    Contains
+    Contains /
+    ContainsCI
     
 
 FieldName = $([a-zA-Z][a-zA-Z0-9_]*)
@@ -104,6 +105,13 @@ NotContainedIn = op:"$notIn" _ "(" field:FieldName _ values:AnotherFieldValue+ "
 }
 
 Contains = op:"$contains" _ "(" field:FieldName _ "," _ value:FieldValueString ")" {
+    var res = {};
+    res[op] = {};
+    res[op][field] = value;
+    return res;
+}
+
+ContainsCI = op:"$containsCI" _ "(" field:FieldName _ "," _ value:FieldValueString ")" {
     var res = {};
     res[op] = {};
     res[op][field] = value;

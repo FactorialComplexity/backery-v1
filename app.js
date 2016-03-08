@@ -17,13 +17,13 @@ var Backery = require('./lib/Backery.js');
 var Application = require('./lib/api/Application.js');
 var initREST = require('./lib/rest/REST.js');
 
-nconf.argv().env('_');
+nconf.argv();
 
 if (nconf.get('paths:config')) {
     nconf.file({ file: path.resolve(nconf.get('paths:config')) });
 }
 
-nconf.env('_');
+nconf.env('__');
 
 console.log('Loading model from: ' + path.resolve(nconf.get('paths:model')));
 
@@ -33,7 +33,9 @@ var modelDefinition = new ModelDefinition(modelData);
 var model = new SequelizeModel();
 var application;
 
-model.define(modelDefinition, nconf.get('database:uri'), nconf.get('database:options'), Backery).then(function() {
+model.define(modelDefinition, nconf.get('database:uri'),
+    _.extend(nconf.get('database:options'), { shouldLogQueries: true }), Backery).then(function() {
+        
     console.log('Model setup completed');
 
     var entities = { };
