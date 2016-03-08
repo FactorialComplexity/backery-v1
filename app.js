@@ -33,7 +33,9 @@ var modelDefinition = new ModelDefinition(modelData);
 var model = new SequelizeModel();
 var application;
 
-model.define(modelDefinition, nconf.get('database:uri'), nconf.get('database:options'), Backery).then(function() {
+model.define(modelDefinition, nconf.get('database:uri'),
+    _.extend(nconf.get('database:options'), { shouldLogQueries: true }), Backery).then(function() {
+        
     console.log('Model setup completed');
 
     var entities = { };
