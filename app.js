@@ -17,7 +17,7 @@ var Backery = require('./lib/Backery.js');
 var Application = require('./lib/api/Application.js');
 var initREST = require('./lib/rest/REST.js');
 
-nconf.argv();
+nconf.argv().env('__');
 
 if (nconf.get('paths:config')) {
     nconf.file({ file: path.resolve(nconf.get('paths:config')) });
