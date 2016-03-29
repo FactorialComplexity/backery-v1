@@ -1,0 +1,31 @@
+{
+    "name": "Example",
+    
+    "roles": [
+        
+    ],
+    
+    "authMethods": [
+        { "method": "password", "loginFields": [ "email" ] }
+    ],
+    
+    "entities": [
+        {
+            "name": "User",
+            "fields": [
+                { "name": "email", "type": "String" }
+            ]
+        },
+        
+        {
+            "name": "PrimitiveKeysEntity",
+            "fields": [
+                { "name": "stringKey", "type": "String" },
+                { "name": "dateKey", "type": "Date" },
+                { "name": "integerKey", "type": "Integer" },
+                { "name": "numberKey", "type": "Number" },
+                { "name": "booleanKey", "type": "Boolean" }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,34 @@
+{
+    "debug": {
+        "log_queries": true
+    },
+    
+    "database": {
+        "options": {
+            "dialectOptions": {
+                "charset": "utf8mb4"
+            },
+            "caseSensitiveCollation": "utf8mb4_bin",
+            "caseInsensitiveCollation": "utf8mb4_general_ci"
+        }
+    },
+    "rest": {
+        "port": 2903
+    },
+    "oauth2": {
+        "clients": {
+            "ios": "QhmIRfKEMK"
+        },
+        "cookie_private_key": "fab5786af6555ed577677a000099a999"
+    },
+    "extensions": {
+        "trusted_code": true
+    },
+    "facebook": {
+        "app_id": "",
+        "app_secret": ""
+    },
+    "custom": {
+        
+    }
+}
