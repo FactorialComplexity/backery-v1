@@ -18,10 +18,12 @@ Expression =
     
 
 FieldName = $([a-zA-Z][a-zA-Z0-9_]*)
-FieldValue = FieldValueString / FieldValueNumber
+FieldValue = FieldValueString / FieldValueNumber / FieldValueBoolean / FieldValueNull
 
 FieldValueString = "\"" value:$([^"]*) "\"" { return value; }
 FieldValueNumber = value:$([+-]?[0-9]+) { return parseInt(value); }
+FieldValueBoolean = value:$("true" / "false") { return value == "true"; }
+FieldValueNull = "null" { return null; }
 
 AnotherExpression = "," _ arg:Expression { return arg; }
 
