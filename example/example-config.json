@@ -21,6 +21,13 @@
         },
         "cookie_private_key": "fab5786af6555ed577677a000099a999"
     },
+    "files": {
+        "s3": {
+            "bucket": "backery-example",
+            "prefix": "files",
+            "default": true
+        }
+    },
     "extensions": {
         "trusted_code": true
     },

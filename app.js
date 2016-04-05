@@ -18,7 +18,7 @@ var Application = require('./lib/api/Application.js');
 var initREST = require('./lib/rest/REST.js');
 
 var availableFileManagers = {
-    's3': './lib/model/sequelize/S3FileManager.js'
+    's3': require('./lib/model/files/S3FileManager.js')
 }
 
 nconf.argv().env('__');
@@ -46,11 +46,13 @@ model.define(modelDefinition, nconf.get('database:uri'),
         entities[entityDefinition.name] = model.entity(entityDefinition.name);
     });
     
-    if (_.isObject( nconf.get('files')[nconf.get('files:defaultManager')] )) {
-        _.each(availableFileManagers, function(location, name) {
-            manager = require(location);
-            model.registerFileManager(new manager(nconf.get('files')[name], Backery), (name == nconf.get('files:defaultManager')));
-        })
+    if (nconf.get('files')) {
+        var filesConfig = nconf.get('files');
+        _.each(filesConfig, function(value, key) {
+            var Manager = availableFileManagers[key];
+            manager = new Manager(filesConfig[key], Backery);
+            model.registerFileManager(manager, filesConfig[key].default);
+        });
     } else {
        reject(new Error('Default file manager is not defined'));
     }
