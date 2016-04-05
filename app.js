@@ -17,6 +17,10 @@ var Backery = require('./lib/Backery.js');
 var Application = require('./lib/api/Application.js');
 var initREST = require('./lib/rest/REST.js');
 
+var availableFileManagers = {
+    's3': './lib/model/sequelize/S3FileManager.js'
+}
+
 nconf.argv().env('__');
 
 if (nconf.get('paths:config')) {
@@ -35,13 +39,22 @@ var application;
 
 model.define(modelDefinition, nconf.get('database:uri'),
     _.extend(nconf.get('database:options'), { shouldLogQueries: true }), Backery).then(function() {
-        
     console.log('Model setup completed');
 
     var entities = { };
     _.each(modelDefinition.entities, function(entityDefinition) {
         entities[entityDefinition.name] = model.entity(entityDefinition.name);
     });
+    
+    if (_.isObject( nconf.get('files')[nconf.get('files:defaultManager')] )) {
+        _.each(availableFileManagers, function(location, name) {
+            manager = require(location);
+            model.registerFileManager(new manager(nconf.get('files')[name], Backery), (name == nconf.get('files:defaultManager')));
+        })
+    } else {
+       reject(new Error('Default file manager is not defined'));
+    }
+    
     Backery.Model = entities;
     
     application = new Application(nconf, model, Backery);
