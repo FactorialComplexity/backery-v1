@@ -15,7 +15,7 @@ var ModelDefinition = require('./lib/model/definition/ModelDefinition.js')
 var SequelizeModel = require('./lib/model/sequelize/SequelizeModel.js')
 var Backery = require('./lib/Backery.js');
 var Application = require('./lib/api/Application.js');
-var initREST = require('./lib/rest/REST.js');
+var initREST = require('./lib/rest/routes.js');
 
 nconf.argv().env('__');
 
