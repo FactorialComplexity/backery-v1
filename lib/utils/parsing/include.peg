@@ -1,0 +1,106 @@
+Start = _ value:(Includes) _ {
+    return value; // Clean up from whitespace
+}
+
+FieldName = $([a-zA-Z][a-zA-Z0-9_]*)
+Number = value:$([+-]?[0-9]+) { return parseInt(value); }
+NumberOrDash = value:Number / value:"-" { return value == "-" ? undefined : value; }
+
+Includes = include1:Include _ includes:AnotherInclude* {
+	var list = [include1];
+    includes.forEach(function(include) {
+    	list.push(include);
+    });
+    return list;
+}
+
+Include = IncludeWithParameters / IncludeSimple / IncludeNoParameters
+IncludeNoParameters = key:FieldName { return key; }
+IncludeWithParameters = key:FieldName _ params:IncludeParameters {
+	var ret = { };
+    ret[key] = { };
+    
+    for (var pk in params)
+    	ret[key][pk] = params[pk];
+    return ret;
+}
+IncludeSimple = key:FieldName _ "(" _ offset:Number _ ( ";" / "," ) _ limit:NumberOrDash  _ ")" {
+	var ret = { };
+    ret[key] = {
+        $offset: offset
+    };
+    
+    if (limit)
+    	ret[key]['$limit'] = limit;
+    
+    return ret;
+}
+
+AnotherInclude = "," _ arg:Include { return arg; }
+
+IncludeParameter = 
+	IncludeParameterInclude /
+    IncludeParameterSort /
+    IncludeParameterOffset /
+    IncludeParameterLimit
+
+IncludeParameterInclude = key:"$include" _ ":" _ "(" _ value:Includes _ ")" {
+	return {
+    	key: key,
+        value: value
+    };
+}
+IncludeParameterSort = key:"$sort" _ ":" _ "(" _ value:Sorts _ ")" {
+	return {
+    	key: key,
+        value: value
+    };
+}
+IncludeParameterOffset = key:"$offset" _ ":" _ value:Number {
+	return {
+    	key: key,
+        value: value
+    };
+}
+IncludeParameterLimit = key:"$limit" _ ":" _ value:Number {
+	return {
+    	key: key,
+        value: value
+    };
+}
+
+AnotherIncludeParameter = "," _ arg:IncludeParameter { return arg; }
+
+IncludeParameters = "(" _ param1:IncludeParameter _  params:AnotherIncludeParameter* ")" {
+	var ret = { };
+    ret[param1.key] = param1.value;
+    params.forEach(function(param) { ret[param.key] = param.value; });
+    return ret;
+}
+
+
+Sorts = sort1:Sort _ sorts:AnotherSort* {
+	var list = [sort1];
+    sorts.forEach(function(sort) { list.push(sort); });
+    return list;
+}
+
+Sort = SortWithParameters / SortNoParameters
+SortNoParameters = key:FieldName { return key; }
+SortWithParameters = key:FieldName _ params:SortParameters {
+	var ret = { };
+    ret[key] = { };
+    
+    ret[key] = params.order;
+    return ret;
+}
+
+AnotherSort = "," _ arg:Sort { return arg; }
+
+SortParameters = "(" _ order:SortParameterOrder _ ")" {
+	return { order: order };
+}
+
+SortParameterOrder = "asc" / "desc"
+
+_ "whitespace" = [ \t\n\r]*
