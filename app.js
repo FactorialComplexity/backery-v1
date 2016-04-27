@@ -76,6 +76,14 @@ model.define(modelDefinition, nconf.get('database:uri'),
         });
     });
     
+    console.log('Extension code database hooks:');
+    _.each(application.getDatabaseHooks(), function(types, entityName) {
+        console.log('  ' + entityName);
+        _.each(types, function(type) {
+            console.log('    - ' + type);
+        });
+    });
+    
     console.log('Container application initialized successfully');
 }, function(error) {
     console.error(error);
