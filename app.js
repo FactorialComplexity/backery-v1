@@ -59,8 +59,9 @@ model.define(modelDefinition, nconf.get('database:uri'),
     
     Backery.Model = entities;
     
-    // Wrap Backery.Struct functions that require model with wrappers, providing model object
+    // Wrap functions that require model with wrappers, providing model object
     Backery.Struct.fromJSON = _.partial(Backery.Struct.fromJSON, _, _, model);
+    Backery.Object.load = _.partial(Backery.Object.load, _, model);
     
     application = new Application(nconf, model, Backery);
     
