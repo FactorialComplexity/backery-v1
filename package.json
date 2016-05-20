@@ -23,6 +23,7 @@
     "sandboxed-module": "wicharek/node-sandboxed-module#require_filter",
     "semver": "^5.0.3",
     "sequelize": "^3.12.2",
+    "syntax-error": "^1.1.6",
     "underscore": "~1.8.3"
   },
   "devDependencies": {
