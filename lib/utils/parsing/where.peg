@@ -13,6 +13,7 @@ Expression =
     LessThanOrEquals /
     ContainedIn /
     NotContainedIn /
+    Nearby /
     Contains /
     ContainsCI
     
@@ -22,6 +23,7 @@ FieldValue = FieldValueString / FieldValueNumber / FieldValueBoolean / FieldValu
 
 FieldValueString = "\"" value:$([^"]*) "\"" { return value; }
 FieldValueNumber = value:$([+-]?[0-9]+) { return parseInt(value); }
+FieldValueFloat =  value:$([+-]?([0-9]*[.])?[0-9]+)  { return parseFloat(value); }
 FieldValueBoolean = value:$("true" / "false") { return value == "true"; }
 FieldValueNull = "null" { return null; }
 
@@ -103,6 +105,17 @@ NotContainedIn = op:"$notIn" _ "(" field:FieldName _ values:AnotherFieldValue+ "
     var res = {};
     res[op] = {};
     res[op][field] = list;
+    return res;
+}
+
+Nearby = op:"$nearby" _ "(" lat:FieldValueFloat "," lon:FieldValueFloat "," dist:FieldValueNumber ")" {
+    
+    var res = {};
+    res[op] = {};
+    res[op]["lat"] = lat;
+    res[op]["lon"] = lon;
+    res[op]["dist"] = dist;
+    
     return res;
 }
 
