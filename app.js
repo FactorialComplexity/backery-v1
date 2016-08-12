@@ -10,6 +10,7 @@ require('console-stamp')(console, {
     }
 });
 
+var requestContextNamespace = require('continuation-local-storage').createNamespace('io.backery.request.context');
 
 var ModelDefinition = require('./lib/model/definition/ModelDefinition.js')
 var SequelizeModel = require('./lib/model/sequelize/SequelizeModel.js')
@@ -71,7 +72,8 @@ model.define(modelDefinition, nconf.get('database:uri'),
     
     return initREST(application, {
         port: nconf.get('rest:port'),
-        maxBodySize: nconf.get('rest:maxBodySize')
+        maxBodySize: nconf.get('rest:maxBodySize'),
+        requestContextNamespace: requestContextNamespace
     });
 }).then(function(info) {
     console.log('REST API setup completed, listening to port %s', info.address.port);
