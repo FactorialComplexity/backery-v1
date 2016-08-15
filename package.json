@@ -5,6 +5,7 @@
   "main": "app.js",
   "dependencies": {
     "aes-cross": "1.0.8",
+    "apn": "^1.7.8",
     "async": "~1.4.2",
     "aws-sdk": "^2.3.0",
     "bluebird": "^3.4.1",
