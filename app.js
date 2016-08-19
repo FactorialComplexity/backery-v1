@@ -1,6 +1,7 @@
 var nconf = require('nconf');
 var path = require('path');
 var _ = require('underscore');
+var colors = require('colors/safe');
 
 require('console-stamp')(console, {
     pattern: "UTC:yyyy-mm-dd'T'HH:MM:ss.l'Z'",
@@ -85,8 +86,6 @@ model.define(modelDefinition, nconf.get('database:uri'),
         requestContextNamespace: requestContextNamespace
     });
 }).then(function(info) {
-    console.log('REST API setup completed, listening to port %s', info.address.port);
-    
     console.log('Extension code request hooks:');
     _.each(application.getRequestHooks(), function(types, entityName) {
         console.log('  ' + entityName);
@@ -103,6 +102,7 @@ model.define(modelDefinition, nconf.get('database:uri'),
         });
     });
     
+    console.log('REST API setup completed, listening to port', colors.green(info.address.port));
     console.log('Container application initialized successfully');
 }, function(error) {
     console.error(error);
