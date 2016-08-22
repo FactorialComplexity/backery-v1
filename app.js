@@ -16,7 +16,10 @@ var ModelDefinition = require('./lib/model/definition/ModelDefinition.js')
 var SequelizeModel = require('./lib/model/sequelize/SequelizeModel.js')
 var Backery = require('./lib/Backery.js');
 var Application = require('./lib/api/Application.js');
+var PushNotificationsQueueMemory = require('./lib/push/PushNotificationsQueueMemory.js');
+var PushNotificationsSender = require('./lib/push/PushNotificationsSender.js');
 var initREST = require('./lib/rest/REST.js');
+
 
 var availableFileManagers = {
     's3': require('./lib/model/files/S3FileManager.js')
@@ -37,6 +40,7 @@ var modelDefinition = new ModelDefinition(modelData);
 
 var model = new SequelizeModel();
 var application;
+var pushNotificationsQueue = new PushNotificationsQueueMemory(), pushNotificationsSender;
 
 model.define(modelDefinition, nconf.get('database:uri'),
     _.extend(nconf.get('database:options'), { shouldLogQueries: true }), Backery).then(function() {
@@ -58,6 +62,10 @@ model.define(modelDefinition, nconf.get('database:uri'),
        reject(new Error('Default file manager is not defined'));
     }
     
+    pushNotificationsSender = new PushNotificationsSender(nconf.get('pushNotifications'), entities,
+        pushNotificationsQueue, Backery);
+    pushNotificationsSender.start();
+    
     Backery.Model = entities;
     
     if (model.SQL) {
@@ -67,6 +75,7 @@ model.define(modelDefinition, nconf.get('database:uri'),
     // Wrap functions that require model with wrappers, providing model object
     Backery.Struct.fromJSON = _.partial(Backery.Struct.fromJSON, _, _, model);
     Backery.Object.load = _.partial(Backery.Object.load, _, model);
+    Backery.Push.send = _.partial(Backery.Push.send, _, _, pushNotificationsQueue);
     
     application = new Application(nconf, model, Backery);
     
