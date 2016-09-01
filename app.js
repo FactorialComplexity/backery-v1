@@ -1,6 +1,7 @@
 var nconf = require('nconf');
 var path = require('path');
 var _ = require('underscore');
+var colors = require('colors/safe');
 
 require('console-stamp')(console, {
     pattern: "UTC:yyyy-mm-dd'T'HH:MM:ss.l'Z'",
@@ -10,12 +11,16 @@ require('console-stamp')(console, {
     }
 });
 
+var requestContextNamespace = require('continuation-local-storage').createNamespace('io.backery.request.context');
 
 var ModelDefinition = require('./lib/model/definition/ModelDefinition.js')
 var SequelizeModel = require('./lib/model/sequelize/SequelizeModel.js')
 var Backery = require('./lib/Backery.js');
 var Application = require('./lib/api/Application.js');
+var PushNotificationsQueueMemory = require('./lib/push/PushNotificationsQueueMemory.js');
+var PushNotificationsSender = require('./lib/push/PushNotificationsSender.js');
 var initREST = require('./lib/rest/REST.js');
+
 
 var availableFileManagers = {
     's3': require('./lib/model/files/S3FileManager.js')
@@ -36,6 +41,7 @@ var modelDefinition = new ModelDefinition(modelData);
 
 var model = new SequelizeModel();
 var application;
+var pushNotificationsQueue = new PushNotificationsQueueMemory(), pushNotificationsSender;
 
 model.define(modelDefinition, nconf.get('database:uri'),
     _.extend(nconf.get('database:options'), { shouldLogQueries: true }), Backery).then(function() {
@@ -57,21 +63,29 @@ model.define(modelDefinition, nconf.get('database:uri'),
        reject(new Error('Default file manager is not defined'));
     }
     
+    pushNotificationsSender = new PushNotificationsSender(nconf.get('pushNotifications'), entities,
+        pushNotificationsQueue, Backery);
+    pushNotificationsSender.start();
+    
     Backery.Model = entities;
+    
+    if (model.SQL) {
+        Backery.SQL = model.SQL;
+    }
     
     // Wrap functions that require model with wrappers, providing model object
     Backery.Struct.fromJSON = _.partial(Backery.Struct.fromJSON, _, _, model);
     Backery.Object.load = _.partial(Backery.Object.load, _, model);
+    Backery.Push.send = _.partial(Backery.Push.send, _, _, pushNotificationsQueue);
     
     application = new Application(nconf, model, Backery);
     
     return initREST(application, {
         port: nconf.get('rest:port'),
-        maxBodySize: nconf.get('rest:maxBodySize')
+        maxBodySize: nconf.get('rest:maxBodySize'),
+        requestContextNamespace: requestContextNamespace
     });
 }).then(function(info) {
-    console.log('REST API setup completed, listening to port %s', info.address.port);
-    
     console.log('Extension code request hooks:');
     _.each(application.getRequestHooks(), function(types, entityName) {
         console.log('  ' + entityName);
@@ -88,6 +102,7 @@ model.define(modelDefinition, nconf.get('database:uri'),
         });
     });
     
+    console.log('REST API setup completed, listening to port', colors.green(info.address.port));
     console.log('Container application initialized successfully');
 }, function(error) {
     console.error(error);
