@@ -63,9 +63,11 @@ model.define(modelDefinition, nconf.get('database:uri'),
        reject(new Error('Default file manager is not defined'));
     }
     
-    pushNotificationsSender = new PushNotificationsSender(nconf.get('pushNotifications'), entities,
-        pushNotificationsQueue, Backery);
-    pushNotificationsSender.start();
+    if (nconf.get('pushNotifications')) {
+      pushNotificationsSender = new PushNotificationsSender(nconf.get('pushNotifications'), entities,
+          pushNotificationsQueue, Backery);
+      pushNotificationsSender.start();
+    }
     
     Backery.Model = entities;
     
