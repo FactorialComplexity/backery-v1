@@ -85,7 +85,8 @@ model.define(modelDefinition, nconf.get('database:uri'),
     return initREST(application, {
         port: nconf.get('rest:port'),
         maxBodySize: nconf.get('rest:maxBodySize'),
-        requestContextNamespace: requestContextNamespace
+        requestContextNamespace: requestContextNamespace,
+        resetPasswordAssetsPath: nconf.get('paths:extension-code').replace('/main.js', nconf.get('extensions:resetPasswordAssetsPath'))
     });
 }).then(function(info) {
     console.log('Extension code request hooks:');
