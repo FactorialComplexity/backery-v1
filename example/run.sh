@@ -1,0 +1,1 @@
+node ../app.js --paths:model ./example-model.json --paths:config ./example-config.json --paths:extension-code ./extension/main.js

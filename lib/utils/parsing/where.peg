@@ -1,0 +1,136 @@
+Start = _ value:(ImplicitAnd / Expression) _ {
+    return value; // Clean up from whitespace
+}
+
+Expression = 
+    And /
+    Or /
+    Equals /
+    NotEquals /
+    GreaterThan /
+    GreaterThanOrEquals /
+    LessThan /
+    LessThanOrEquals /
+    ContainedIn /
+    NotContainedIn /
+    Nearby /
+    Contains /
+    ContainsCI
+    
+
+FieldName = $([a-zA-Z][a-zA-Z0-9_]*)
+FieldValue = FieldValueString / FieldValueNumber / FieldValueBoolean / FieldValueNull
+
+FieldValueString = "\"" value:$([^"]*) "\"" { return value; }
+FieldValueNumber = value:$([+-]?[0-9]+) { return parseInt(value); }
+FieldValueFloat =  value:$([+-]?([0-9]*[.])?[0-9]+)  { return parseFloat(value); }
+FieldValueBoolean = value:$("true" / "false") { return value == "true"; }
+FieldValueNull = "null" { return null; }
+
+AnotherExpression = "," _ arg:Expression { return arg; }
+
+ImplicitAnd = ImplicitAndBrackets / ImplicitAndNoBrackets
+
+ImplicitAndBrackets = "(" _ arg1:Expression _ args:AnotherExpression+ ")" {
+    var list = [arg1];
+    args.forEach(function(arg) { list.push(arg); });
+    return { $and: list };
+}
+
+ImplicitAndNoBrackets = arg1:Expression _ args:AnotherExpression+ {
+    var list = [arg1];
+    args.forEach(function(arg) { list.push(arg); });
+    return { $and: list };
+}
+
+And = "$and" _ "(" _ arg1:Expression _ args:AnotherExpression+ ")" {
+    var list = [arg1];
+    args.forEach(function(arg) { list.push(arg); });
+    return { $and: list };
+}
+
+Or = "$or" _ "(" _ arg1:Expression _ args:AnotherExpression+ ")" {
+    var list = [arg1];
+    args.forEach(function(arg) { list.push(arg); });
+    return { $or: list };
+}
+
+Condition = "(" _ field:FieldName _ "," _ value:FieldValue _ ")" {
+    var cond = {};
+    cond[field] = value
+    return cond;
+}
+
+
+Equals = EqualsFunction / EqualsSimple
+EqualsFunction = op:"$eq" _ cond:Condition { var res = {}; res[op] = cond; return res; }
+EqualsSimple = field:FieldName _ "=" _ value:FieldValue { var cond = {}; cond[field] = value; return { $eq: cond }; }
+
+NotEquals = NotEqualsFunction / NotEqualsSimple
+NotEqualsFunction = op:"$ne" _ cond:Condition { var res = {}; res[op] = cond; return res; }
+NotEqualsSimple = field:FieldName _ "!=" _ value:FieldValue { var cond = {}; cond[field] = value; return { $ne: cond }; }
+
+GreaterThan = GreaterThanFunction / GreaterThanSimple
+GreaterThanFunction = op:"$gt" _ cond:Condition { var res = {}; res[op] = cond; return res; }
+GreaterThanSimple = field:FieldName _ ">" _ value:FieldValue { var cond = {}; cond[field] = value; return { $gt: cond }; }
+
+GreaterThanOrEquals = GreaterThanOrEqualsFunction / GreaterThanOrEqualsSimple
+GreaterThanOrEqualsFunction = op:"$gte" _ cond:Condition { var res = {}; res[op] = cond; return res; }
+GreaterThanOrEqualsSimple = field:FieldName _ ">=" _ value:FieldValue { var cond = {}; cond[field] = value; return { $gte: cond }; }
+
+LessThan = LessThanFunction / LessThanSimple
+LessThanFunction = op:"$lt" _ cond:Condition ")" { var res = {}; res[op] = cond; return res; }
+LessThanSimple = field:FieldName _ "<" _ value:FieldValue { var cond = {}; cond[field] = value; return { $lt: cond }; }
+
+LessThanOrEquals = LessThanOrEqualsFunction / LessThanOrEqualsSimple
+LessThanOrEqualsFunction = op:"$lte" _ cond:Condition { var res = {}; res[op] = cond; return res; }
+LessThanOrEqualsSimple = field:FieldName _ "<=" _ value:FieldValue { var cond = {}; cond[field] = value; return { $lte: cond }; }
+
+AnotherFieldValue = "," _ arg:FieldValue { return arg; }
+
+ContainedIn = op:"$in" _ "(" field:FieldName _ values:AnotherFieldValue+ ")" {
+    var list = [];
+    values.forEach(function(val) { list.push(val); });
+    
+    var res = {};
+    res[op] = {};
+    res[op][field] = list;
+    return res;
+}
+
+NotContainedIn = op:"$notIn" _ "(" field:FieldName _ values:AnotherFieldValue+ ")" {
+    var list = [];
+    values.forEach(function(val) { list.push(val); });
+    
+    var res = {};
+    res[op] = {};
+    res[op][field] = list;
+    return res;
+}
+
+Nearby = op:"$nearby" _ "(" lat:FieldValueFloat "," lon:FieldValueFloat "," dist:FieldValueNumber ")" {
+    
+    var res = {};
+    res[op] = {};
+    res[op]["lat"] = lat;
+    res[op]["lon"] = lon;
+    res[op]["dist"] = dist;
+    
+    return res;
+}
+
+Contains = op:"$contains" _ "(" field:FieldName _ "," _ value:FieldValueString ")" {
+    var res = {};
+    res[op] = {};
+    res[op][field] = value;
+    return res;
+}
+
+ContainsCI = op:"$containsCI" _ "(" field:FieldName _ "," _ value:FieldValueString ")" {
+    var res = {};
+    res[op] = {};
+    res[op][field] = value;
+    return res;
+}
+
+_ "whitespace" = [ \t\n\r]*

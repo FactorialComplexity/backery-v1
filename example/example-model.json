@@ -1,0 +1,57 @@
+{
+    "name": "Example",
+    
+    "roles": [
+        
+    ],
+    
+    "authMethods": [
+        { "method": "password", "loginFields": [ "email" ] }
+    ],
+    
+    "entities": [
+        {
+            "name": "User",
+            "fields": [
+                { "name": "email", "type": "String" }
+            ]
+        },
+        
+        {
+            "name": "PrimitiveKeysEntity",
+            "fields": [
+                { "name": "stringKey", "type": "String" },
+                { "name": "dateKey", "type": "Date" },
+                { "name": "integerKey", "type": "Integer" },
+                { "name": "numberKey", "type": "Number" },
+                { "name": "booleanKey", "type": "Boolean" }
+            ]
+        },
+        
+        {
+            "name": "Artist",
+            "fields": [
+                { "name": "title", "type": "String" },
+                { "name": "photo", "type": { "relation": "One", "entity": "File" } },
+                { "name": "albums", "type": { "relation": "Many", "entity": "Album" } },
+                { "name": "users", "type": { "relation": "Many", "entity": "User" } }
+            ]
+        },
+        
+        {
+            "name": "Album",
+            "fields": [
+                { "name": "title", "type": "String" },
+                { "name": "cover", "type": { "relation": "One", "entity": "File" } },
+                { "name": "tracks", "type": { "relation": "Many", "entity": "Track" } }
+            ]
+        },
+        
+        {
+            "name": "Track",
+            "fields": [
+                { "name": "photo", "type": { "relation": "One", "entity": "File" } }
+            ]
+        }
+    ]
+}
