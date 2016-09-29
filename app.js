@@ -13,8 +13,8 @@ require('console-stamp')(console, {
 
 var requestContextNamespace = require('continuation-local-storage').createNamespace('io.backery.request.context');
 
-var ModelDefinition = require('./lib/model/definition/ModelDefinition.js')
-var SequelizeModel = require('./lib/model/sequelize/SequelizeModel.js')
+var ModelDefinition = require('./lib/model/definition/ModelDefinition.js');
+var SequelizeModel = require('./lib/model/sequelize/SequelizeModel.js');
 var Backery = require('./lib/Backery.js');
 var Application = require('./lib/api/Application.js');
 var PushNotificationsQueueMemory = require('./lib/push/PushNotificationsQueueMemory.js');
