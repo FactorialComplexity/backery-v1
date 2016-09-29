@@ -17,8 +17,8 @@ module.exports = function(config, schema) {
     var accessTokens = { };
     var refreshTokens = { };
     
-    var Authentication = proxyquire('../../lib/api/authentication/Authentication.js', {
-        '../utils/FacebookTokenChecker.js': function() {
+    var Authentication = proxyquire('../../lib/authentication/Authentication.js', {
+        '../utils/integrations/FacebookTokenChecker.js': function() {
             this.checkAccessToken = function(token, callback) {
                 if (token == 'validFacebookTokenForExistingUser') {
                     callback(undefined, 'existingUserId_facebook');
@@ -30,7 +30,7 @@ module.exports = function(config, schema) {
             }
         },
         
-        '../utils/TwitterTokenChecker.js': function() {
+        '../utils/integrations/TwitterTokenChecker.js': function() {
             this.checkAccessToken = function(token, secret, callback) {
                 if (token == 'validTwitterTokenForExistingUser' && secret == 'validTwitterTokenSecret') {
                     callback(undefined, 'existingUserId_twitter');
@@ -42,7 +42,7 @@ module.exports = function(config, schema) {
             }
         },
         
-        '../utils/GoogleTokenChecker.js': function() {
+        '../utils/integrations/GoogleTokenChecker.js': function() {
             this.checkAccessToken = function(token, callback) {
                 if (token == 'validGoogleTokenForExistingUser') {
                     callback(undefined, 'existingUserId_google');
@@ -51,11 +51,6 @@ module.exports = function(config, schema) {
                 } else {
                     callback(new errors.BackeryInvalidParametersError('Google access token is invalid'));
                 }
-            }
-        },
-        
-        '../requests.js': {
-            CreateOrUpdateRequest: function() {
             }
         }
     });
@@ -112,6 +107,9 @@ module.exports = function(config, schema) {
     
     var application = {
         Backery: Backery,
+        Request: {
+            CreateOrUpdate: function() { }
+        },
         getModel: function() {
             return {
                 getDefinition: function() {
