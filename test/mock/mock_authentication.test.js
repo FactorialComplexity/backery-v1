@@ -17,43 +17,7 @@ module.exports = function(config, schema) {
     var accessTokens = { };
     var refreshTokens = { };
     
-    var Authentication = proxyquire('../../lib/authentication/Authentication.js', {
-        '../utils/integrations/FacebookTokenChecker.js': function() {
-            this.checkAccessToken = function(token, callback) {
-                if (token == 'validFacebookTokenForExistingUser') {
-                    callback(undefined, 'existingUserId_facebook');
-                } else if (token == 'validFacebookTokenForNotExistingUser') {
-                    callback(undefined, 'notExistingUserId_facebook');
-                } else {
-                    callback(new errors.BackeryInvalidParametersError('Facebook access token is invalid'));
-                }
-            }
-        },
-        
-        '../utils/integrations/TwitterTokenChecker.js': function() {
-            this.checkAccessToken = function(token, secret, callback) {
-                if (token == 'validTwitterTokenForExistingUser' && secret == 'validTwitterTokenSecret') {
-                    callback(undefined, 'existingUserId_twitter');
-                } else if (token == 'validTwitterTokenForNotExistingUser') {
-                    callback(undefined, 'notExistingUserId_twitter' && secret == 'validTwitterTokenSecret');
-                } else {
-                    callback(new errors.BackeryInvalidParametersError('Twitter access token is invalid'));
-                }
-            }
-        },
-        
-        '../utils/integrations/GoogleTokenChecker.js': function() {
-            this.checkAccessToken = function(token, callback) {
-                if (token == 'validGoogleTokenForExistingUser') {
-                    callback(undefined, 'existingUserId_google');
-                } else if (token == 'validGoogleTokenForNotExistingUser') {
-                    callback(undefined, 'notExistingUserId_google');
-                } else {
-                    callback(new errors.BackeryInvalidParametersError('Google access token is invalid'));
-                }
-            }
-        }
-    });
+    var Authentication = proxyquire('../../lib/authentication/Authentication.js', require('./mock_TokenChecker.js'));
     
     var ModelSchema = require('../../lib/model/definition/ModelDefinition.js');
     schema = new ModelSchema(schema);

@@ -104,7 +104,7 @@ describe('Authentication', function() {
         });
         
         it('should return falsy value if refresh token was not found', function() {
-            return auth.getAccessToken('refreshTokenInvalid').then(function(token) {
+            return auth.getRefreshToken('refreshTokenInvalid').then(function(token) {
                 should(token).not.be.ok();
             });
         });
@@ -225,6 +225,16 @@ describe('Authentication', function() {
         it('should fail with UnauthorizedError, when invalid Google token was provided', function() {
             return auth.authenticateUser('google', { google_id_token: 'invalidFacebookToken' })
                 .should.be.rejectedWith({ code: 'UnauthorizedError' });
+        });
+    });
+    
+    describe('#isAuthenticationMethodSupported()', function() { 
+        it('should return true if supported method was specified', function() {
+            auth.isAuthenticationMethodSupported('google').should.be.true();
+        });
+        
+        it('should return false if not supported method was specified', function() {
+            auth.isAuthenticationMethodSupported('unsupported').should.be.false();
         });
     });
 });
