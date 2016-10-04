@@ -420,7 +420,7 @@ describe('OAuth', function() {
         });
     });
     
-    describe.only('#authenticate()', function() {
+    describe('#authenticate()', function() {
         var user, accessToken;
         before(function() {
             return application.Backery.Model.User.create({
