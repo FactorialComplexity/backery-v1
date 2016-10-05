@@ -10,6 +10,10 @@ module.exports = function(data, Backery) {
         
         get: function(key) {
             return data[key];
+        },
+        
+        toJSON: function() {
+            return data;
         }
     };
 };

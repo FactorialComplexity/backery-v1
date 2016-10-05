@@ -463,7 +463,7 @@ describe('OAuth', function() {
             };
         });
         
-        it('should set proper req.user value if valid access is provided', function(done) {
+        it('should set proper req.user value if valid access token is provided', function(done) {
             req.header = function(key) {
                 if (key == 'Authorization') {
                     return 'Bearer ' + accessToken;

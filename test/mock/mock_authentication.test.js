@@ -23,7 +23,12 @@ module.exports = function(config, schema) {
     schema = new ModelSchema(schema);
     
     var Backery = {
-        Promise: Promise(cls)
+        Promise: Promise(cls),
+        Object: {
+            load: function(data) {
+                return new mock_BackeryObject(data);
+            }
+        }
     };
     
     Backery.Model = {
@@ -65,6 +70,10 @@ module.exports = function(config, schema) {
                         }
                     }
                 };
+            },
+            
+            load: function(data) {
+                return new mock_BackeryObject(data);
             }
         }
     };
