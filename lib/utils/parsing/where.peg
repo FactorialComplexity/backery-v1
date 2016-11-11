@@ -79,7 +79,7 @@ GreaterThanOrEqualsFunction = op:"$gte" _ cond:Condition { var res = {}; res[op]
 GreaterThanOrEqualsSimple = field:FieldName _ ">=" _ value:FieldValue { var cond = {}; cond[field] = value; return { $gte: cond }; }
 
 LessThan = LessThanFunction / LessThanSimple
-LessThanFunction = op:"$lt" _ cond:Condition ")" { var res = {}; res[op] = cond; return res; }
+LessThanFunction = op:"$lt" _ cond:Condition { var res = {}; res[op] = cond; return res; }
 LessThanSimple = field:FieldName _ "<" _ value:FieldValue { var cond = {}; cond[field] = value; return { $lt: cond }; }
 
 LessThanOrEquals = LessThanOrEqualsFunction / LessThanOrEqualsSimple
