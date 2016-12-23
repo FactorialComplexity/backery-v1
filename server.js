@@ -36,9 +36,7 @@ application(nconf, schema).then(function(application) {
         REST(application, {
             port: nconf.get('rest:port'),
             maxBodySize: nconf.get('rest:maxBodySize'),
-            requestContextNamespace: application.getRequestContextNamespace(),
-            resetPasswordAssetsPath: nconf.get('paths:extension-code').replace('/main.js',
-                nconf.get('extensions:resetPasswordAssetsPath'))
+            requestContextNamespace: application.getRequestContextNamespace()
         }),
         application
     ]);
