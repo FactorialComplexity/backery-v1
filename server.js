@@ -36,7 +36,8 @@ application(nconf, schema).then(function(application) {
         REST(application, {
             port: nconf.get('rest:port'),
             maxBodySize: nconf.get('rest:maxBodySize'),
-            requestContextNamespace: application.getRequestContextNamespace()
+            requestContextNamespace: application.getRequestContextNamespace(),
+            cookieSecret: nconf.get('rest:cookieSecret')
         }),
         application
     ]);
