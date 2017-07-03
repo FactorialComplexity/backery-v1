@@ -14,6 +14,7 @@ require('console-stamp')(console, {
 var ModelDefinition = require('./lib/model/definition/ModelDefinition.js');
 
 var REST = require('./lib/rest/REST.js');
+var WebSockets = require('./lib/webSockets/webSocketsServer.js');
 var application = require('./lib/application.js');
 
 nconf.argv().env('__');
@@ -31,17 +32,19 @@ var schema = new ModelDefinition(modelData);
 
 application(nconf, schema).then(function(application) {
     console.log('Application setup completed');
-    
-    return application.Backery.Promise.all([
-        REST(application, {
+
+    return REST(application, {
             port: nconf.get('rest:port'),
             maxBodySize: nconf.get('rest:maxBodySize'),
             requestContextNamespace: application.getRequestContextNamespace(),
             cookieSecret: nconf.get('rest:cookieSecret')
-        }),
-        application
-    ]);
-}).spread(function(info, application) {
+        })
+        .then(({ http }) => application.Backery.Promise.all([
+            http,
+            application,
+            WebSockets(http, application),
+        ]))
+}).spread(function(http, application, socketNamespaces) {
     console.log('Extension code request hooks:');
     _.each(application.getRequestHooks(), function(types, entityName) {
         console.log('  ' + entityName);
@@ -49,7 +52,7 @@ application(nconf, schema).then(function(application) {
             console.log('    - ' + type);
         });
     });
-    
+
     console.log('Extension code database hooks:');
     _.each(application.getDatabaseHooks(), function(types, entityName) {
         console.log('  ' + entityName);
@@ -57,8 +60,13 @@ application(nconf, schema).then(function(application) {
             console.log('    - ' + type);
         });
     });
-    
-    console.log('REST API setup completed, listening to port', colors.green(info.address.port));
+
+
+    console.log('Extension code socket namespaces: ');
+    socketNamespaces.forEach(nsp => console.log('    - ' + nsp))
+
+    console.log('REST API setup completed, listening to port', colors.green(http.address().port));
+    console.log('Web Sockets setup completed, listening to port', colors.green(http.address().port));
     console.log('Container application initialized successfully');
 }, function(error) {
     console.error(error);
