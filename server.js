@@ -62,7 +62,7 @@ application(nconf, schema).then(function(application) {
         });
     });
 
-    console.log('REST API setup completed, listening to port', colors.green(http.address().port));
+    console.log('REST API setup completed, listening to port', colors.green(httpServer.address().port));
     console.log('Container application initialized successfully');
 }, function(error) {
     console.error(error);
