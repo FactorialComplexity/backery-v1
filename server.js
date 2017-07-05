@@ -31,7 +31,7 @@ var schema = new ModelDefinition(modelData);
 
 application(nconf, schema).then(function(application) {
     console.log('Application setup completed');
-    
+
     return application.Backery.Promise.all([
         REST(application, {
             port: nconf.get('rest:port'),
@@ -40,8 +40,8 @@ application(nconf, schema).then(function(application) {
             cookieSecret: nconf.get('rest:cookieSecret')
         }),
         application
-    ]);
-}).spread(function(info, application) {
+        ])
+}).spread(function({ httpServer }, application) {
     console.log('Extension code request hooks:');
     _.each(application.getRequestHooks(), function(types, entityName) {
         console.log('  ' + entityName);
@@ -49,7 +49,11 @@ application(nconf, schema).then(function(application) {
             console.log('    - ' + type);
         });
     });
-    
+
+    console.log('Extension code onListen hooks:');
+    application.getOnListenHooks().forEach(hook => hook(httpServer, application))
+    console.log('    - ' + application.getOnListenHooks().length + ' hook(s) registered');
+
     console.log('Extension code database hooks:');
     _.each(application.getDatabaseHooks(), function(types, entityName) {
         console.log('  ' + entityName);
@@ -57,8 +61,8 @@ application(nconf, schema).then(function(application) {
             console.log('    - ' + type);
         });
     });
-    
-    console.log('REST API setup completed, listening to port', colors.green(info.address.port));
+
+    console.log('REST API setup completed, listening to port', colors.green(http.address().port));
     console.log('Container application initialized successfully');
 }, function(error) {
     console.error(error);
