@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '/ home / credentials' })
+require('dotenv').config({ path: '/home/node/credentials' })
 var nconf = require('nconf');
 var path = require('path');
 var _ = require('underscore');
