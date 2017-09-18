@@ -1,7 +1,3 @@
-var fs = require('fs');
-if (fs.existsSync(process.env.DOTENV_PATH)) {
-    require('dotenv').config({ path: process.env.DOTENV_PATH })
-}
 var nconf = require('nconf');
 var path = require('path');
 var _ = require('underscore');
